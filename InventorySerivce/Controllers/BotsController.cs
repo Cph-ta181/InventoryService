@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using InventorySerivce.Data;
 using InventorySerivce.Models;
+using InventorySerivce.Services.EntityServices;
 
 namespace InventorySerivce.Controllers
 {
@@ -15,17 +16,19 @@ namespace InventorySerivce.Controllers
     public class BotsController : ControllerBase
     {
         private readonly InventorySerivceContext _context;
+        private readonly IBotService _botservice;
 
-        public BotsController(InventorySerivceContext context)
+        public BotsController(InventorySerivceContext context, IBotService botService)
         {
             _context = context;
+            _botservice = botService;
         }
 
         // GET: api/Bots
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Bot>>> GetBot()
         {
-            return await _context.Bot.ToListAsync();
+            return Ok(_botservice.GetAllBots());
         }
 
         // GET: api/Bots/5
@@ -78,24 +81,8 @@ namespace InventorySerivce.Controllers
         [HttpPost]
         public async Task<ActionResult<Bot>> PostBot(Bot bot)
         {
-            _context.Bot.Add(bot);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (BotExists(bot.Id))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetBot", new { id = bot.Id }, bot);
+            _botservice.AddBot(bot);
+            return Created("/api/bots/" + bot.Id, bot);
         }
 
         // DELETE: api/Bots/5

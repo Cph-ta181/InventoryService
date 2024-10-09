@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using InventorySerivce.Data;
 using InventorySerivce.Models;
+using InventorySerivce.Services.RabbitMQ;
 
 namespace InventorySerivce.Controllers
 {

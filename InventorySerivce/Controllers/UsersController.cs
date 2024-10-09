@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using InventorySerivce.Data;
 using InventorySerivce.Models;
+using InventorySerivce.Services.EntityServices;
 
 namespace InventorySerivce.Controllers
 {
@@ -14,37 +15,41 @@ namespace InventorySerivce.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly InventorySerivceContext _context;
+        //private readonly InventorySerivceContext _context;
+        private readonly IUserRepository _userRepository;
+        private readonly IUserService _userService;
 
-        public UsersController(InventorySerivceContext context)
+        public UsersController(/*InventorySerivceContext context*/ IUserRepository userRepository, IUserService userService)
         {
-            _context = context;
+            //_context = context;
+            _userRepository = userRepository;
+            _userService = userService;
         }
 
         // GET: api/Users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUser()
         {
-            return await _context.User.ToListAsync();
+            return Ok(await _userService.GetAllUsers());
         }
 
         // GET: api/Users/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(long id)
         {
-            var user = await _context.User.FindAsync(id);
+            var user = await _userService.GetUserById(id);
 
             if (user == null)
             {
                 return NotFound();
             }
 
-            return user;
+            return Ok(user);
         }
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        /*[HttpPut("{id}")]
         public async Task<IActionResult> PutUser(long id, User user)
         {
             if (id != user.Id)
@@ -71,52 +76,40 @@ namespace InventorySerivce.Controllers
             }
 
             return NoContent();
-        }
+        }*/
 
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-            _context.User.Add(user);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (UserExists(user.Id))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            _userService.AddUser(user);
+            return Created("/api/users/" + user.Id, user);
         }
 
         // DELETE: api/Users/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(long id)
         {
-            var user = await _context.User.FindAsync(id);
+            /*
+            User? user = _userRepository.GetById(id);
+
             if (user == null)
             {
                 return NotFound();
             }
-
-            _context.User.Remove(user);
-            await _context.SaveChangesAsync();
-
+            _userRepository.Delete(id);*/
             return NoContent();
         }
 
         private bool UserExists(long id)
         {
-            return _context.User.Any(e => e.Id == id);
+            /*User? user = _userRepository.GetById(id);
+            if (user == null)
+            {
+                return false;
+            }*/
+            return true;
         }
     }
 }

@@ -6,12 +6,52 @@ networks:
 services:
   inventoryserivce:
     image: ${DOCKER_REGISTRY-}inventoryserivce
-    mem_limit: 1024M
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+#      - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__InventoryServiceContext=Server=SqlServerContainer;Database=itemdb;Trusted_Connection=True;MultipleActiveResultSets=true;User Id=sa;Password=YourStrong@Passw0rd
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__UserName=guest
+      - RabbitMQ__Password=guest
+      - RabbitMQ__QueueName=test 
+    mem_limit: 512M
+    ports:
+        - 10080:8080
+        - 10081:8081
     build:
       context: .
       dockerfile: InventorySerivce/Dockerfile
     depends_on:
         - SqlServerDb
+
+  tradeservice:
+    image: tradeservice:dev
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      #- ASPNETCORE_HTTPS_PORTS=8081
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__UserName=guest
+      - RabbitMQ__Password=guest
+    mem_limit: 512M
+    ports:
+        - 11080:8080
+        - 11081:8081
+    build:
+      context: ../TradeService
+      dockerfile: ../TradeService/TradeService/Dockerfile
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    mem_limit: 512M
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+    volumes:
+        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
 
   SqlServerDb:
     container_name: SqlServerContainer

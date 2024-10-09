@@ -4,6 +4,13 @@ namespace InventorySerivce.Models
 {
     public class Trade
     {
+        public Trade(long userId, Status status, DateTime statusChange)
+        {
+            UserId = userId;
+            Status = status;
+            StatusChange = statusChange;
+        }
+
         public int Id { get; set; }
 
         //foreign key for User
