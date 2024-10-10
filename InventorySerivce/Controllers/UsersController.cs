@@ -33,6 +33,18 @@ namespace InventorySerivce.Controllers
             return Ok(await _userService.GetAllUsers());
         }
 
+        [HttpGet("{id}/balance")]
+        public async Task<ActionResult<IEnumerable<User>>> GetUserBalance(long id)
+        {
+            var user = await _userService.GetUserById(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user.Balance);
+        }
+
         // GET: api/Users/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(long id)

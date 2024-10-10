@@ -24,9 +24,22 @@ namespace InventorySerivce.Controllers
 
         // GET: api/Items
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Item>>> GetItem()
+        public async Task<ActionResult<IEnumerable<Item>>> GetItem(string? weapon = null, string? weaponType = null)
         {
-            return await _context.Item.ToListAsync();
+            IQueryable<Item> query = _context.Item;
+
+            if (!string.IsNullOrEmpty(weapon))
+            {
+                query = query.Where(p => p.Skin.Weapon == weapon);
+            }
+
+            if (!string.IsNullOrEmpty(weaponType))
+            {
+                query = query.Where(p => p.Skin.WeaponType == weaponType);
+            }
+            var products = await query.ToListAsync();
+
+            return Ok(products);
         }
 
         // GET: api/Items/5

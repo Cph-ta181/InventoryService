@@ -20,7 +20,6 @@ namespace InventorySerivce.Services.RabbitMQ
 
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
-
         }
 
         public void SendMessage<T>(T message, string queueName) where T : IMessage<T>

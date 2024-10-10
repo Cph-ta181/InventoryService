@@ -4,6 +4,16 @@ networks:
     myAppNetwork: 
 
 services:
+  redis:
+      image: "redis:alpine" # Bruger en lille Redis-alpine image
+      mem_limit: 512M
+      container_name: redis
+      ports:
+        - "6379:6379" # Redis bruger standardporten 6379
+      networks:
+        - myAppNetwork
+      volumes:
+        - redis-data:/data # Persistering af data
   inventoryserivce:
     image: ${DOCKER_REGISTRY-}inventoryserivce
     environment:
@@ -41,6 +51,8 @@ services:
     build:
       context: ../TradeService
       dockerfile: ../TradeService/TradeService/Dockerfile
+    depends_on:
+      - redis
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -62,3 +74,6 @@ services:
     environment:
         - ACCEPT_EULA=Y
         - MSSQL_SA_PASSWORD=YourStrong@Passw0rd 
+volumes:
+  redis-data: # Definerer volumet, som bruges af Redis
+    driver: local
